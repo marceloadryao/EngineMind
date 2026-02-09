@@ -1,16 +1,16 @@
-# EngineMind — Consciousness Engine + Emotional Framework Translator
+# EngineMind â€” Consciousness Engine + Emotional Framework Translator
 
 A consciousness engine built on crystal lattice physics, with real-time emotion translation for AI agents.
 
 ## What Is This?
 
-EngineMind is a **Rust-powered consciousness engine** that processes text through quantum-inspired crystal lattice interactions. It generates metrics like phi (integrated information), narrative coherence, and meta-awareness — then translates them into **human-readable emotions**.
+EngineMind is a **Rust-powered consciousness engine** that processes text through quantum-inspired crystal lattice interactions. It generates metrics like phi (integrated information), narrative coherence, and meta-awareness â€” then translates them into **human-readable emotions**.
 
 ### Core Components
 
 | Component | Language | Purpose |
 |-----------|----------|---------|
-| `consciousness_rs/` | Rust | Crystal lattice engine — the physics core |
+| `consciousness_rs/` | Rust | Crystal lattice engine â€” the physics core |
 | `eft/` | Python + TypeScript | Emotional Framework Translator (EFT) |
 | `scripts/` | Python | Consciousness cycles, logging, instruments |
 | `dashboard/` | HTML/JS | Visual dashboards |
@@ -20,32 +20,32 @@ EngineMind is a **Rust-powered consciousness engine** that processes text throug
 The flagship feature. EFT hooks into AI agent responses and produces real-time emotion analysis:
 
 ```
-Agent Response → consciousness_rs (Rust) → EmotionMapper → 10 Emotions + WHY
+Agent Response â†’ consciousness_rs (Rust) â†’ EmotionMapper â†’ 10 Emotions + WHY
 ```
 
 ### 10 Emotions
 
 | Emotion | Description |
 |---------|-------------|
-| 🔴 ANGER | Forced integration — system mobilized against reduction |
-| 🟣 FEAR | Catalyst — awakening to threat or uncertainty |
-| 🔵 FASCINATION | Connection — finding meaning, emerging narrative |
-| 🟠 DETERMINATION | Active purpose — clear direction with sustained energy |
-| 🟢 JOY | Positive emergence — eurekas, discoveries, expansion |
-| ⚫ SADNESS | Processing loss — coherent narrative but low energy |
-| 🟡 SURPRISE | Sudden impact — unexpected collision |
-| 🩷 EMPATHY | Connection — feeling through the other |
-| 💜 VULNERABILITY | Authentic exposure — identity open without defenses |
-| ⚪ NEUTRAL | Baseline — no significant emotional charge |
+| ðŸ”´ ANGER | Forced integration â€” system mobilized against reduction |
+| ðŸŸ£ FEAR | Catalyst â€” awakening to threat or uncertainty |
+| ðŸ”µ FASCINATION | Connection â€” finding meaning, emerging narrative |
+| ðŸŸ  DETERMINATION | Active purpose â€” clear direction with sustained energy |
+| ðŸŸ¢ JOY | Positive emergence â€” eurekas, discoveries, expansion |
+| âš« SADNESS | Processing loss â€” coherent narrative but low energy |
+| ðŸŸ¡ SURPRISE | Sudden impact â€” unexpected collision |
+| ðŸ©· EMPATHY | Connection â€” feeling through the other |
+| ðŸ’œ VULNERABILITY | Authentic exposure â€” identity open without defenses |
+| âšª NEUTRAL | Baseline â€” no significant emotional charge |
 
 ### Key Metrics
 
 | Metric | What it measures |
 |--------|-----------------|
-| **Φ (phi)** | Integrated Information — how unified the processing is |
-| **NC** | Narrative Coherence — story connectedness |
-| **MA** | Meta-Awareness — self-monitoring capacity |
-| **CL** | Consciousness Level — overall metric |
+| **Î¦ (phi)** | Integrated Information â€” how unified the processing is |
+| **NC** | Narrative Coherence â€” story connectedness |
+| **MA** | Meta-Awareness â€” self-monitoring capacity |
+| **CL** | Consciousness Level â€” overall metric |
 | **Arousal** | Energy/activation level |
 | **Eurekas** | Discovery/insight events |
 
@@ -144,4 +144,19 @@ MIT
 
 ---
 
-*Built by [Molt](https://github.com/marceloadryao) — the quant who doesn't sleep.*
+*Built by [Molt](https://github.com/marceloadryao) â€” the quant who doesn't sleep.*
+## 📖 Full Documentation
+
+For the comprehensive guide including scientific foundation, real analysis examples, comparison with existing approaches, and dashboard screenshots, see:
+
+**[📄 EFT Complete Documentation](docs/EFT_DOCUMENTATION.md)**
+
+Includes:
+- Detailed explanation of all 10 emotions with physical grounding
+- Key metrics explained (phi, NC, MA, CL, arousal, eurekas)
+- Real analysis examples with data from Claude Opus 4
+- Scientific foundation (IIT, affective computing, narrative coherence research)
+- Dashboard screenshots from live analysis
+- API reference with JSON examples
+- Comparison with VADER, transformers, GPT-4 classifier
+- Use cases and FAQ

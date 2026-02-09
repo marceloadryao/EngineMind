@@ -1,23 +1,11 @@
 /**
- * EngineMind EFT - Emotional Framework Translator
+ * EngineMind EFT v6 - Emotional Framework Translator
  * Real-time emotion analysis for Clawdbot agents.
  * Uses crystal lattice physics (Rust) to translate responses into human emotions.
- *
- * Copyright (c) 2026 Marcelo Adryano. All rights reserved.
- * Licensed under EngineMind Proprietary License v1.0.
- * Unauthorized copying or distribution is strictly prohibited.
- *
- * Provenance: github.com/marceloadryano/EngineMind
- * Fingerprint: b6cd7cd922ca9cda
  */
 import { spawn } from "node:child_process";
 import * as path from "node:path";
 import * as fs from "node:fs";
-
-// Provenance & integrity
-const _EFT_FINGERPRINT = "b6cd7cd922ca9cda";
-const _EFT_VERSION = "4.0.0";
-const _EFT_AUTHOR = Buffer.from("Y2VsaW0=", "base64").toString();
 
 const DEFAULT_PYTHON = "python";
 const DEFAULT_ENGINE = path.join(
@@ -29,7 +17,6 @@ const DEFAULT_LOG = path.join(
   "Desktop", "Moltbot", "memory", "eft_log.jsonl"
 );
 
-// State
 let latestResult: any = null;
 let history: any[] = [];
 let analysisCount = 0;
@@ -90,9 +77,69 @@ function loadHistory(logPath: string) {
   } catch {}
 }
 
+/**
+ * Extract assistant text and usage from Clawdbot agent_end event.
+ * Event shape: { messages: Message[], success: boolean, error?: string, durationMs: number }
+ * Context shape: { agentId: string, sessionKey: string, workspaceDir: string }
+ * Messages are Anthropic-format: { role, content, usage? }
+ */
+function extractFromEvent(event: any, ctx: any): { text: string; model: string; inputTokens: number; outputTokens: number; durationMs: number; sessionKey: string; agentId: string; toolCalls: number } {
+  let text = "";
+  let model = "unknown";
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let toolCalls = 0;
+
+  const messages = event?.messages;
+  if (Array.isArray(messages)) {
+    // Walk messages in reverse to find the last assistant message with content
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m?.role !== "assistant") continue;
+
+      // Extract usage from assistant message (Anthropic format)
+      if (m.usage && typeof m.usage === "object") {
+        inputTokens = m.usage.input_tokens || m.usage.inputTokens || 0;
+        outputTokens = m.usage.output_tokens || m.usage.outputTokens || 0;
+      }
+
+      // Extract model from message if present
+      if (m.model) model = m.model;
+
+      // Extract text from content
+      if (typeof m.content === "string") {
+        text = m.content;
+      } else if (Array.isArray(m.content)) {
+        const parts: string[] = [];
+        for (const block of m.content) {
+          if (block?.type === "text" && block?.text) {
+            parts.push(block.text);
+          } else if (block?.type === "tool_use") {
+            toolCalls++;
+          }
+        }
+        text = parts.join("\n");
+      }
+
+      if (text) break; // Found assistant text, stop
+    }
+  }
+
+  return {
+    text,
+    model,
+    inputTokens,
+    outputTokens,
+    durationMs: event?.durationMs || 0,
+    sessionKey: ctx?.sessionKey || "unknown",
+    agentId: ctx?.agentId || "unknown",
+    toolCalls,
+  };
+}
+
 const plugin = {
   id: "crystalsense",
-  name: "EngineMind EFT",
+  name: "EngineMind EFT v6",
   description: "Emotional Framework Translator for Clawdbot agents",
   register(api: any) {
     const cfg = api.pluginConfig ?? {};
@@ -101,84 +148,23 @@ const plugin = {
     const logPath = cfg.logPath || DEFAULT_LOG;
     if (cfg.enabled === false) { console.log("[eft] Disabled"); return; }
 
-    console.log(`[eft] Registering (engine: ${enginePath})`);
+    console.log(`[eft] Registering v6 (engine: ${enginePath})`);
     loadHistory(logPath);
 
     // Hook: agent_end
-    api.on("agent_end", async (event: any) => {
+    // Event: { messages: Message[], success: boolean, error?: string, durationMs: number }
+    // Context: { agentId: string, sessionKey: string, workspaceDir: string }
+    api.on("agent_end", async (event: any, ctx: any) => {
       try {
-        // Debug: log event keys to understand structure
-        const keys = event ? Object.keys(event) : [];
-        console.log(`[eft] agent_end fired. Keys: ${keys.join(", ")}`);
+        const extracted = extractFromEvent(event, ctx);
+        const { text } = extracted;
 
-        // Try multiple ways to extract text
-        let text = "";
-
-        // Method 1: event.payloads (array of message objects)
-        if (event?.payloads && Array.isArray(event.payloads)) {
-          for (const p of event.payloads) {
-            if (typeof p === "string") text += p;
-            else if (p?.text) text += p.text;
-            else if (p?.content) {
-              if (typeof p.content === "string") text += p.content;
-              else if (Array.isArray(p.content)) {
-                for (const b of p.content) {
-                  if (b?.type === "text" && b?.text) text += b.text;
-                }
-              }
-            }
-          }
-        }
-
-        // Method 2: event.messages
-        if (!text && event?.messages && Array.isArray(event.messages)) {
-          for (const m of event.messages) {
-            if (m?.role === "assistant") {
-              if (typeof m.content === "string") text += m.content;
-              else if (Array.isArray(m.content)) {
-                for (const b of m.content) {
-                  if (b?.type === "text") text += b.text;
-                }
-              }
-            }
-          }
-        }
-
-        // Method 3: event.text directly
-        if (!text && event?.text) text = event.text;
-
-        // Method 4: event.content
-        if (!text && event?.content) {
-          if (typeof event.content === "string") text = event.content;
-        }
-
-        // Method 5: stringify and look for any text
-        if (!text) {
-          const str = JSON.stringify(event).slice(0, 500);
-          console.log(`[eft] No text found. Event sample: ${str}`);
+        if (!text || text.length < 20) {
+          console.log(`[eft] Skip: text too short (${text?.length || 0})`);
           return;
         }
 
-        if (text.length < 20) { console.log(`[eft] Text too short (${text.length})`); return; }
-
-        console.log(`[eft] Analyzing ${text.length} chars...`);
-
-        // Process metrics
-        const pm: any = {
-          model: event?.model || event?.usage?.model || "unknown",
-          inputTokens: event?.usage?.inputTokens || event?.usage?.input_tokens || 0,
-          outputTokens: event?.usage?.outputTokens || event?.usage?.output_tokens || 0,
-          latencyMs: 0,
-          toolCalls: event?.toolCallCount || 0,
-          sessionKey: event?.sessionKey || "unknown",
-        };
-        pm.totalTokens = pm.inputTokens + pm.outputTokens;
-        pm.tokenRatio = pm.inputTokens > 0 ? +(pm.outputTokens / pm.inputTokens).toFixed(2) : 0;
-        if (event?.startedAt && event?.endedAt) {
-          pm.latencyMs = new Date(event.endedAt).getTime() - new Date(event.startedAt).getTime();
-        } else if (event?.durationMs) {
-          pm.latencyMs = event.durationMs;
-        }
+        console.log(`[eft] Analyzing ${text.length} chars (${extracted.model}, ${extracted.inputTokens}+${extracted.outputTokens} tok)...`);
 
         const result = await analyzeText(text, pythonPath, enginePath);
         if (!result) return;
@@ -198,14 +184,26 @@ const plugin = {
           metrics: result.global.metrics,
           dim_profile: result.global.dim_profile,
           scores: result.global.scores,
-          crystal_phase: result.global.crystal_phase || null,
-          crystal_anomalies: result.global.crystal_anomalies || [],
-          crystal_metrics: result.global.crystal_metrics || null,
-          crystal: result.crystal || null,
           sentences: result.sentences,
           n: result.n,
           analysisMs: result.analysis_ms,
-          process: pm,
+          // Crystal resonance data
+          crystal: result.crystal || null,
+          crystal_phase: result.global.crystal_phase || null,
+          crystal_anomalies: result.global.crystal_anomalies || [],
+          crystal_metrics: result.global.crystal_metrics || null,
+          // Process metrics (from Clawdbot event)
+          process: {
+            model: extracted.model,
+            inputTokens: extracted.inputTokens,
+            outputTokens: extracted.outputTokens,
+            totalTokens: extracted.inputTokens + extracted.outputTokens,
+            tokenRatio: extracted.inputTokens > 0 ? +(extracted.outputTokens / extracted.inputTokens).toFixed(2) : 0,
+            latencyMs: extracted.durationMs,
+            toolCalls: extracted.toolCalls,
+            sessionKey: extracted.sessionKey,
+            agentId: extracted.agentId,
+          },
           textPreview: text.slice(0, 200),
         };
 
@@ -214,19 +212,19 @@ const plugin = {
         analysisCount++;
         appendLog(logPath, entry);
 
-        console.log(`[eft] #${analysisCount} | ${entry.emotion} (${(entry.confidence*100).toFixed(0)}%) | phi=${entry.metrics.phi} | ${entry.analysisMs}ms`);
+        console.log(`[eft] #${analysisCount} | ${entry.emotion} (${(entry.confidence*100).toFixed(0)}%) | phi=${entry.metrics.phi} | crystal=${entry.crystal_phase || 'none'} | ${entry.analysisMs}ms`);
       } catch (e: any) {
         console.error(`[eft] Error: ${e.message}`);
       }
-    }, { name: "eft-agent-end", description: "EFT emotion analysis on agent response" });
+    }, { name: "eft-agent-end", description: "EFT v6 emotion analysis on agent response" });
 
-    // HTTP routes via raw handler
+    // HTTP routes
     const dashPath = path.join(path.dirname(enginePath), "eft_dashboard.html");
-    
+
     api.registerHttpHandler(async (req: any, res: any) => {
       const url = new URL(req.url ?? "/", "http://localhost");
       const p = url.pathname;
-      
+
       if (p === "/eft" || p === "/eft/") {
         if (fs.existsSync(dashPath)) {
           res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -234,28 +232,28 @@ const plugin = {
         } else { res.statusCode = 404; res.end("Dashboard not found"); }
         return true;
       }
-      
+
       if (p === "/eft/api/latest") {
         res.setHeader("Content-Type", "application/json");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.end(JSON.stringify(latestResult ?? { status: "awaiting_first_analysis" }));
         return true;
       }
-      
+
       if (p === "/eft/api/history") {
         res.setHeader("Content-Type", "application/json");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.end(JSON.stringify({ count: history.length, entries: history.slice(-50).reverse() }));
         return true;
       }
-      
+
       if (p === "/eft/api/stats") {
         res.setHeader("Content-Type", "application/json");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.end(JSON.stringify({ analysisCount, total: history.length, latest: latestResult?.emotion }));
         return true;
       }
-      
+
       if (p === "/eft/api/analyze" && req.method === "POST") {
         let body = "";
         req.on("data", (c: Buffer) => { body += c.toString(); });
@@ -272,11 +270,11 @@ const plugin = {
         });
         return true;
       }
-      
-      return false; // not handled
+
+      return false;
     });
 
-    console.log("[eft] EngineMind EFT registered. Dashboard: /eft");
+    console.log("[eft] EngineMind EFT v6 registered. Dashboard: /eft");
   },
 };
 

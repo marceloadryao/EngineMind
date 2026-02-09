@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="author" content="Marcelo Adryano (celim)">
-    <meta name="copyright" content="(c) 2026 Marcelo Adryano. All rights reserved.">
-    <meta name="generator" content="EngineMind EFT v4 - b6cd7cd922ca9cda">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EngineMind EFT - Emotional Framework Translator</title>
@@ -75,9 +72,43 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .refresh-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'JetBrains Mono'}
 .refresh-btn:hover{border-color:var(--text3)}
 @media(max-width:900px){.main{grid-template-columns:1fr}.right{border-left:none;border-top:1px solid var(--border)}}
+.crystal-phase{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:'JetBrains Mono'}
+.crystal-phase.SPONTANEOUS{background:#2D3748;color:#A0AEC0}
+.crystal-phase.STIMULATED{background:#2C5282;color:#90CDF4}
+.crystal-phase.DARK{background:#1A202C;color:#718096}
+.crystal-phase.TIME_CRYSTAL{background:#553C9A;color:#D6BCFA}
+.crystal-phase.SUPERFLUID{background:#285E61;color:#81E6D9}
+.crystal-phase.SUPERRADIANT{background:#744210;color:#FEFCBF}
+.crystal-phase.BOSE_EINSTEIN{background:#22543D;color:#9AE6B4}
+.crystal-phase.PLASMA{background:#742A2A;color:#FEB2B2}
+.crystal-phase.SPIN_GLASS{background:#4A5568;color:#CBD5E0}
+.crystal-phase.RADIANT{background:#975A16;color:#FEFCBF}
+.crystal-phase.NOVA{background:#9B2C2C;color:#FED7D7}
+.crystal-anomaly{padding:3px 6px;margin:2px 0;border-radius:3px;font-size:10px;border-left:3px solid}
+.crystal-anomaly.high{border-color:#E53E3E;background:rgba(229,62,62,0.1)}
+.crystal-anomaly.medium{border-color:#ECC94B;background:rgba(236,201,75,0.1)}
+.crystal-anomaly.low{border-color:#4299E1;background:rgba(66,153,225,0.1)}
+.crystal-anomaly.info{border-color:#A0AEC0;background:rgba(160,174,192,0.05)}
+.phase-evolution{display:flex;gap:2px;flex-wrap:wrap;margin-top:4px}
+.phase-dot{width:8px;height:8px;border-radius:50%;border:1px solid var(--border)}
+
+.crystal-phase{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:'JetBrains Mono'}
+.crystal-phase.SPONTANEOUS{background:#2D3748;color:#A0AEC0}
+.crystal-phase.STIMULATED{background:#2C5282;color:#90CDF4}
+.crystal-phase.DARK{background:#1A202C;color:#718096}
+.crystal-phase.TIME_CRYSTAL{background:#553C9A;color:#D6BCFA}
+.crystal-phase.SUPERFLUID{background:#285E61;color:#81E6D9}
+.crystal-phase.SUPERRADIANT{background:#744210;color:#FEFCBF}
+.crystal-phase.BOSE_EINSTEIN{background:#22543D;color:#9AE6B4}
+.crystal-phase.PLASMA{background:#742A2A;color:#FEB2B2}
+.crystal-anomaly{padding:3px 6px;margin:2px 0;border-radius:3px;font-size:10px;border-left:3px solid}
+.crystal-anomaly.high{border-color:#E53E3E;background:rgba(229,62,62,0.1)}
+.crystal-anomaly.medium{border-color:#ECC94B;background:rgba(236,201,75,0.1)}
+.crystal-anomaly.low{border-color:#4299E1;background:rgba(66,153,225,0.1)}
+.crystal-anomaly.info{border-color:#A0AEC0;background:rgba(160,174,192,0.05)}
 </style>
 </head>
-<body data-eft-fp="b6cd7cd922ca9cda" data-eft-origin="Y2VsaW0=" >
+<body>
 <div class="header">
   <h1>EngineMind <span>EFT</span> &mdash; Emotional Framework Translator</h1>
   <div class="header-right">
@@ -104,17 +135,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 <script>
-    // Provenance verification
-    const EFT_PROVENANCE = {
-        author: atob("Y2VsaW0="),
-        fingerprint: "b6cd7cd922ca9cda",
-        version: "5.0.0",
-        origin: "github.com/marceloadryano/EngineMind",
-        license: "EngineMind-Proprietary-1.0"
-    };
-    console.log(`%cEngineMind EFT v${EFT_PROVENANCE.version} | ${EFT_PROVENANCE.origin}`, 
-                'color:#4299E1;font-weight:bold');
-
 const COLORS={ANGER:"#E53E3E",FEAR:"#9F7AEA",FASCINATION:"#4299E1",DETERMINATION:"#ED8936",JOY:"#48BB78",SADNESS:"#718096",SURPRISE:"#ECC94B",EMPATHY:"#ED64A6",VULNERABILITY:"#B794F4",NEUTRAL:"#A0AEC0"};
 let entries=[], selected=null;
 
@@ -157,8 +177,7 @@ function renderLog(){
       <div class="log-tags">
         <span class="tag" style="background:${c}22;color:${c}">${(e.confidence*100).toFixed(0)}% conf</span>
         <span class="tag" style="background:var(--bg4);color:var(--text3)">arc: ${e.arc||'?'}</span>
-        ${e.crystal_phase||e.global?.crystal_phase?`<span class="tag" style="background:#6366f122;color:#6366f1">? ${e.crystal_phase||e.global?.crystal_phase}</span>`:''}
-        ${e.process?.latencyMs?`<span class="tag" style="background:var(--bg4);color:var(--text3)">${e.process.latencyMs}ms</span>`:''}
+        ${e.crystal_phase?`<span class="crystal-phase ${e.crystal_phase}" style="font-size:9px;padding:1px 4px">${e.crystal_phase}</span>`:''}${e.crystal_phase?`<span class="crystal-phase ${e.crystal_phase}" style="font-size:9px;padding:1px 4px">${e.crystal_phase}</span>`:''} ${e.process?.latencyMs?`<span class="tag" style="background:var(--bg4);color:var(--text3)">${(e.process.latencyMs/1000).toFixed(1)}s</span>`:''}
         ${e.process?.totalTokens?`<span class="tag" style="background:var(--bg4);color:var(--text3)">${e.process.totalTokens} tok</span>`:''}
       </div>
       <div class="log-metrics">
@@ -210,19 +229,6 @@ function selectEntry(i){
       ${gauge('Arousal','Energy',e.metrics?.arousal,'#ef4444')}
       ${gauge('Pressure','Tension',e.metrics?.pressure,'#eab308',0.2)}
     </div>
-    <div class="section-label">Resonant Crystal</div>
-    <div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:16px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <span class="tag" style="background:#6366f122;color:#6366f1;font-weight:600">Phase: ${e.crystal_phase||e.global?.crystal_phase||'?'}</span>
-        ${e.crystal_metrics?.drift!=null?`<span class="tag" style="background:var(--bg4);color:var(--text3)">Drift: ${e.crystal_metrics.drift.toFixed(3)}</span>`:''}
-        ${e.crystal_metrics?.inversion!=null?`<span class="tag" style="background:var(--bg4);color:var(--text3)">Inversion: ${e.crystal_metrics.inversion.toFixed(3)}</span>`:''}
-        ${e.crystal_metrics?.diversity!=null?`<span class="tag" style="background:var(--bg4);color:var(--text3)">Diversity: ${e.crystal_metrics.diversity.toFixed(3)}</span>`:''}
-        ${e.crystal_metrics?.arousal!=null?`<span class="tag" style="background:var(--bg4);color:var(--text3)">Arousal: ${e.crystal_metrics.arousal.toFixed(3)}</span>`:''}
-        ${e.crystal_metrics?.burst?'<span class="tag" style="background:#E53E3E22;color:#E53E3E;font-weight:600">? BURST</span>':''}
-        ${e.crystal_metrics?.afterglow?'<span class="tag" style="background:#ED893622;color:#ED8936">? Afterglow</span>':''}
-      </div>
-      ${(e.crystal_anomalies||[]).length?`<div style="font-size:10px;color:var(--text3);line-height:1.8">${(e.crystal_anomalies||[]).map(a=>`<div style="padding:2px 0">? <span style="color:${a.severity==='high'?'#E53E3E':a.severity==='medium'?'#ED8936':'#718096'}">[${a.severity}]</span> ${esc(a.type)}: ${esc(a.desc)}</div>`).join('')}</div>`:'<div style="font-size:10px;color:var(--text3)">No anomalies</div>'}
-    </div>
     <div class="section-label">Dimensional Profile</div>
     <div style="margin-bottom:16px">${Object.entries(e.dim_profile||{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
       const mx=Math.max(...Object.values(e.dim_profile||{}),1);
@@ -236,7 +242,7 @@ function selectEntry(i){
     <div class="section-label">Process Metrics</div>
     <div style="margin-bottom:16px">
       ${prow('Model',e.process?.model)}
-      ${prow('Latency',e.process?.latencyMs?e.process.latencyMs+'ms':'?')}
+      ${prow('Latency',e.process?.latencyMs?(e.process.latencyMs/1000).toFixed(1)+'s':'?')}
       ${prow('Input Tokens',e.process?.inputTokens||'?')}
       ${prow('Output Tokens',e.process?.outputTokens||'?')}
       ${prow('Token Ratio',e.process?.tokenRatio||'?')}
@@ -244,6 +250,14 @@ function selectEntry(i){
       ${prow('Analysis Time',e.analysisMs?e.analysisMs+'ms':'?')}
       ${prow('Sentences',e.n||'?')}
       ${prow('Arc Type',e.arc||'?')}
+      ${prow('Agent',e.process?.agentId||'?')}
+    </div>
+    <div class="section-label" style="margin-top:8px">Resonant Crystal</div>
+    <div style="margin-bottom:16px">
+      ${e.crystal_phase ? '<span class="crystal-phase '+e.crystal_phase+'">'+e.crystal_phase+'</span>' : '<span style="color:var(--text3)">No phase</span>'}
+      ${e.crystal_metrics ? prow('Drift',e.crystal_metrics.drift)+prow('Diversity',e.crystal_metrics.diversity)+prow('Inversion',e.crystal_metrics.inversion)+prow('Emission',e.crystal_metrics.emission_power)+prow('Arousal',e.crystal_metrics.arousal) : ''}
+      ${e.crystal_anomalies&&e.crystal_anomalies.length?'<div style="margin-top:4px;font-size:10px;color:var(--text3)">Anomalies:</div>'+e.crystal_anomalies.map(a=>'<div class="crystal-anomaly '+(a.severity||"info")+'">'+a.type+': '+a.desc+'</div>').join(''):''}
+      ${e.crystal&&e.crystal.phase_evolution?'<div style="margin-top:4px;font-size:10px;color:var(--text3)">Phase Evolution:</div><div style="display:flex;gap:2px;flex-wrap:wrap;margin-top:2px">'+e.crystal.phase_evolution.map(p=>'<span class="crystal-phase '+(p||"DARK")+'" style="font-size:9px;padding:1px 4px">'+(p||"?")+'</span>').join('')+'</div>':''}
     </div>`;
   dp.innerHTML=html;
 }

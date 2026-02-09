@@ -81,20 +81,7 @@ def _verify_integrity():
 # Resonant Crystal Phase -> Emotion Modulation Map (v5)
 # Each condensed matter phase modulates the emotional field
 # ============================================================
-_PHASE_EMOTION_MOD = {
-    "PLASMA":        ("ANGER",         0.20),  # energia intensa, ionizacao
-    "BOSE_EINSTEIN": ("EMPATHY",       0.25),  # coerencia total, meditativo
-    "SUPERFLUID":    ("JOY",           0.20),  # fluxo sem friccao
-    "SPIN_GLASS":    ("FEAR",          0.15),  # frustracao, metaestavel
-    "FERROELECTRIC": ("DETERMINATION", 0.15),  # tensao interna
-    "TIME_CRYSTAL":  ("FASCINATION",   0.18),  # padroes temporais
-    "TOPOLOGICAL":   ("DETERMINATION", 0.12),  # invariantes robustos
-    "SUPERRADIANT":  ("SURPRISE",      0.25),  # burst N^2 cooperativo
-    "QUASICRYSTAL":  (None,            0.10),  # amplifica dominante
-    "DARK":          (None,            0.0),
-    "SPONTANEOUS":   (None,            0.0),
-    "STIMULATED":    (None,            0.05),
-}
+# Phase map removed - crystal only provides info, does not influence emotion scores
 
 # Anomaly detection thresholds
 _ANOMALY_TH = {
@@ -218,39 +205,6 @@ class EmotionMapper:
         if delta_cl > 0.05: s += 0.25
         scores["SURPRISE"] = min(s, 1.0)
 
-
-        # === RESONANT CRYSTAL PHASE MODULATION (v5) ===
-        if rc_content_phase and rc_content_phase in _PHASE_EMOTION_MOD:
-            target_em, boost = _PHASE_EMOTION_MOD[rc_content_phase]
-            if boost > 0:
-                if target_em is None:
-                    # QUASICRYSTAL: amplifica a emocao dominante atual
-                    top_em = max(scores.items(), key=lambda x: x[1])[0] if scores else None
-                    if top_em:
-                        scores[top_em] = min(scores[top_em] + boost, 1.0)
-                else:
-                    scores[target_em] = min(scores.get(target_em, 0) + boost, 1.0)
-
-            # Arousal do talamo modula intensidade geral
-            if thalamus_arousal > 0.6:
-                arousal_boost = (thalamus_arousal - 0.6) * 0.15
-                for k in scores:
-                    if scores[k] > 0.1:
-                        scores[k] = min(scores[k] + arousal_boost, 1.0)
-
-            # Burst occurred: amplifica SURPRISE
-            if rc_burst_occurred:
-                scores["SURPRISE"] = min(scores.get("SURPRISE", 0) + 0.35, 1.0)
-
-            # High content drift: indica mudanca emocional -> SURPRISE boost
-            if rc_content_drift > _ANOMALY_TH["drift_high"]:
-                scores["SURPRISE"] = min(scores.get("SURPRISE", 0) + 0.10, 1.0)
-
-            # Afterglow ativo: residuo emocional -> amplifica emocao secundaria
-            if rc_afterglow_active and rc_afterglow_intensity > _ANOMALY_TH["afterglow_strong"]:
-                second = sorted(scores.items(), key=lambda x: -x[1])
-                if len(second) > 1:
-                    scores[second[1][0]] = min(second[1][1] + 0.10, 1.0)
 
         # NEUTRAL
         mx = max(scores.values()) if scores else 0

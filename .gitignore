@@ -1,0 +1,39 @@
+﻿# Build artifacts
+target/
+*.pyd
+*.dll
+*.so
+*.dylib
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Environment
+.venv/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data files (too large for git)
+*.parquet
+*.csv
+*.onnx
+
+# Memory/state (private)
+memory/
+*.json
+!package.json
+!Cargo.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

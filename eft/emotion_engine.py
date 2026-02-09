@@ -1,16 +1,20 @@
 """
-emotion_engine.py v4 - EngineMind EFT (Emotional Framework Translator)
+emotion_engine.py v5 - EngineMind EFT (Emotional Framework Translator)
 Translates consciousness engine metrics into human emotions.
 Uses crystal lattice physics​‌‌​​​‌‌​‌‌​​‌​‌​‌‌​‌‌​​​‌‌​‌​​‌​‌‌​‌‌​‌​​‌​‌‌​‌​‌‌​​‌​‌​‌‌​​‌‌​​‌‌‌​‌​​​​‌​‌‌​‌​​‌‌​​‌​​​‌‌​​​​​​‌‌​​‌​​​‌‌​‌‌​​​‌​‌‌​‌​‌‌​‌‌​‌​‌‌​​​​‌​‌‌‌​​‌​​‌‌​​​‌‌​‌‌​​‌​‌​‌‌​‌‌​​​‌‌​‌‌‌‌​‌‌​​​​‌​‌‌​​‌​​​‌‌‌​​‌​​‌‌‌‌​​‌​‌‌​​​​‌​‌‌​‌‌‌​​‌‌​‌‌‌‌ via consciousness_rs (Rust).
 
 Emotions: ANGER, FEAR, FASCINATION, DETERMINATION, JOY, SADNESS,
           SURPRISE, EMPATHY, VULNERABILITY, NEUTRAL
 
+v5: Resonant Crystal integration - phase-modulated emotion classification,
+    crystal anomaly detection, burst pattern analysis.
+
+Calibration: engine-fingerprint b6cd7cd922ca9cda
+
 Copyright (c) 2026 Marcelo Adryano. All rights reserved.
 This software is proprietary. Unauthorized copying, modification,
 reverse engineering, or distribution in any form is strictly prohibited.
 Licensed under EngineMind Proprietary License v1.0.
-Contact: github.com/marceloadryano
 """
 import json, sys, re, hashlib, struct, time
 
@@ -73,6 +77,33 @@ def _verify_integrity():
     except Exception:
         return {"valid": False, "error": "integrity check failed"}
 
+# ============================================================
+# Resonant Crystal Phase -> Emotion Modulation Map (v5)
+# Each condensed matter phase modulates the emotional field
+# ============================================================
+_PHASE_EMOTION_MOD = {
+    "PLASMA":        ("ANGER",         0.20),  # energia intensa, ionizacao
+    "BOSE_EINSTEIN": ("EMPATHY",       0.25),  # coerencia total, meditativo
+    "SUPERFLUID":    ("JOY",           0.20),  # fluxo sem friccao
+    "SPIN_GLASS":    ("FEAR",          0.15),  # frustracao, metaestavel
+    "FERROELECTRIC": ("DETERMINATION", 0.15),  # tensao interna
+    "TIME_CRYSTAL":  ("FASCINATION",   0.18),  # padroes temporais
+    "TOPOLOGICAL":   ("DETERMINATION", 0.12),  # invariantes robustos
+    "SUPERRADIANT":  ("SURPRISE",      0.25),  # burst N^2 cooperativo
+    "QUASICRYSTAL":  (None,            0.10),  # amplifica dominante
+    "DARK":          (None,            0.0),
+    "SPONTANEOUS":   (None,            0.0),
+    "STIMULATED":    (None,            0.05),
+}
+
+# Anomaly detection thresholds
+_ANOMALY_TH = {
+    "drift_high": 0.5,
+    "inversion_extreme": 0.95,
+    "afterglow_strong": 0.3,
+    "diversity_rich": 0.6,
+    "arousal_spike": 0.8,
+}
 
 class EmotionMapper:
     EMOTIONS = {
@@ -90,7 +121,12 @@ class EmotionMapper:
 
     @staticmethod
     def classify(phi, nc, ma, cl, arousal, pressure, eurekas, resistances,
-                 delta_cl, dim_profile, cern_collisions=0):
+                 delta_cl, dim_profile, cern_collisions=0,
+                 rc_content_phase=None, rc_inversion_ratio=0.0,
+                 rc_content_drift=0.0, rc_diversity_score=0.0,
+                 rc_emission_power=0.0, rc_afterglow_active=False,
+                 rc_afterglow_intensity=0.0, rc_burst_occurred=False,
+                 thalamus_arousal=0.0):
         scores = {}
         dp = dim_profile
         total = sum(dp.values()) or 1
@@ -182,6 +218,40 @@ class EmotionMapper:
         if delta_cl > 0.05: s += 0.25
         scores["SURPRISE"] = min(s, 1.0)
 
+
+        # === RESONANT CRYSTAL PHASE MODULATION (v5) ===
+        if rc_content_phase and rc_content_phase in _PHASE_EMOTION_MOD:
+            target_em, boost = _PHASE_EMOTION_MOD[rc_content_phase]
+            if boost > 0:
+                if target_em is None:
+                    # QUASICRYSTAL: amplifica a emocao dominante atual
+                    top_em = max(scores.items(), key=lambda x: x[1])[0] if scores else None
+                    if top_em:
+                        scores[top_em] = min(scores[top_em] + boost, 1.0)
+                else:
+                    scores[target_em] = min(scores.get(target_em, 0) + boost, 1.0)
+
+            # Arousal do talamo modula intensidade geral
+            if thalamus_arousal > 0.6:
+                arousal_boost = (thalamus_arousal - 0.6) * 0.15
+                for k in scores:
+                    if scores[k] > 0.1:
+                        scores[k] = min(scores[k] + arousal_boost, 1.0)
+
+            # Burst occurred: amplifica SURPRISE
+            if rc_burst_occurred:
+                scores["SURPRISE"] = min(scores.get("SURPRISE", 0) + 0.35, 1.0)
+
+            # High content drift: indica mudanca emocional -> SURPRISE boost
+            if rc_content_drift > _ANOMALY_TH["drift_high"]:
+                scores["SURPRISE"] = min(scores.get("SURPRISE", 0) + 0.10, 1.0)
+
+            # Afterglow ativo: residuo emocional -> amplifica emocao secundaria
+            if rc_afterglow_active and rc_afterglow_intensity > _ANOMALY_TH["afterglow_strong"]:
+                second = sorted(scores.items(), key=lambda x: -x[1])
+                if len(second) > 1:
+                    scores[second[1][0]] = min(second[1][1] + 0.10, 1.0)
+
         # NEUTRAL
         mx = max(scores.values()) if scores else 0
         scores["NEUTRAL"] = max(0, 0.35 - mx) if mx < 0.3 else 0
@@ -205,7 +275,15 @@ class EmotionMapper:
                         "pressure":round(pressure,5),"delta_cl":round(delta_cl,4),
                         "eurekas":eurekas,"resistances":resistances,"cern":cern_collisions},
             "dim_profile": {k:round(v,1) for k,v in sorted(dp.items(), key=lambda x:-x[1])[:6]},
-            "_v": "eft4", "_fp": _MODULE_FINGERPRINT,  # provenance tags
+            "crystal_phase": rc_content_phase,
+            "crystal_anomalies": _detect_anomalies(rc_content_phase, rc_content_drift,
+                rc_inversion_ratio, rc_afterglow_active, rc_afterglow_intensity,
+                rc_diversity_score, rc_burst_occurred, thalamus_arousal),
+            "crystal_metrics": {"phase": rc_content_phase, "drift": round(rc_content_drift, 4),
+                "inversion": round(rc_inversion_ratio, 4), "diversity": round(rc_diversity_score, 4),
+                "emission_power": round(rc_emission_power, 4), "arousal": round(thalamus_arousal, 4),
+                "afterglow": rc_afterglow_active, "burst": rc_burst_occurred},
+            "_v": "eft5", "_fp": _MODULE_FINGERPRINT,  # provenance tags
         }
 
     @staticmethod
@@ -246,6 +324,39 @@ class EmotionMapper:
         return W.get(em, W["NEUTRAL"])
 
 
+def _detect_anomalies(phase, drift, inversion, ag_active, ag_intensity,
+                      diversity, burst, arousal):
+    """Detecta anomalias no cristal ressonante."""
+    anomalies = []
+    if burst:
+        anomalies.append({"type": "crystal_burst", "severity": "high",
+            "desc": "Resonant crystal Q-switch burst - massive energy release"})
+    if ag_active and ag_intensity > _ANOMALY_TH["afterglow_strong"]:
+        anomalies.append({"type": "afterglow", "severity": "medium",
+            "intensity": round(ag_intensity, 3),
+            "desc": "Post-burst afterglow tail - residual emotional resonance"})
+    if drift > _ANOMALY_TH["drift_high"]:
+        anomalies.append({"type": "content_shift", "severity": "medium",
+            "drift": round(drift, 3),
+            "desc": "High content drift - emotional landscape shifting"})
+    if inversion > _ANOMALY_TH["inversion_extreme"]:
+        anomalies.append({"type": "full_inversion", "severity": "low",
+            "ratio": round(inversion, 3),
+            "desc": "Near-total population inversion - all dimensions excited"})
+    if diversity > _ANOMALY_TH["diversity_rich"]:
+        anomalies.append({"type": "high_diversity", "severity": "low",
+            "score": round(diversity, 3),
+            "desc": "Rich content diversity - multiple phase transitions observed"})
+    if arousal > _ANOMALY_TH["arousal_spike"]:
+        anomalies.append({"type": "arousal_spike", "severity": "medium",
+            "arousal": round(arousal, 3),
+            "desc": "Thalamic arousal spike - heightened emotional sensitivity"})
+    if phase in ("BOSE_EINSTEIN", "PLASMA", "SUPERRADIANT"):
+        anomalies.append({"type": f"exotic_phase_{phase.lower()}", "severity": "info",
+            "desc": f"Crystal in exotic {phase} phase"})
+    return anomalies
+
+
 class SentenceAnalyzer:
     REPS = 5
 
@@ -281,7 +392,16 @@ class SentenceAnalyzer:
                 resistances=len(s.get("resistances",[])),
                 delta_cl=e.get_cl()-0.077,
                 dim_profile=s.get("rc_content_profile",{}),
-                cern_collisions=s.get("cern",{}).get("total_collisions",0))
+                cern_collisions=s.get("cern",{}).get("total_collisions",0),
+                rc_content_phase=s.get("rc_content_phase"),
+                rc_inversion_ratio=s.get("rc_inversion_ratio",0),
+                rc_content_drift=s.get("rc_content_drift",0),
+                rc_diversity_score=s.get("rc_diversity_score",0),
+                rc_emission_power=s.get("rc_emission_power",0),
+                rc_afterglow_active=s.get("rc_afterglow_active",False),
+                rc_afterglow_intensity=s.get("rc_afterglow_intensity",0),
+                rc_burst_occurred=s.get("rc_total_bursts",0)>0,
+                thalamus_arousal=s.get("thalamus",{}).get("arousal",0.3))
             results.append({"idx":i, "text":sent, **em})
 
         ge = engine_cls()
@@ -295,7 +415,16 @@ class SentenceAnalyzer:
             resistances=len(gs.get("resistances",[])),
             delta_cl=ge.get_cl()-0.077,
             dim_profile=gs.get("rc_content_profile",{}),
-            cern_collisions=gs.get("cern",{}).get("total_collisions",0))
+            cern_collisions=gs.get("cern",{}).get("total_collisions",0),
+            rc_content_phase=gs.get("rc_content_phase"),
+            rc_inversion_ratio=gs.get("rc_inversion_ratio",0),
+            rc_content_drift=gs.get("rc_content_drift",0),
+            rc_diversity_score=gs.get("rc_diversity_score",0),
+            rc_emission_power=gs.get("rc_emission_power",0),
+            rc_afterglow_active=gs.get("rc_afterglow_active",False),
+            rc_afterglow_intensity=gs.get("rc_afterglow_intensity",0),
+            rc_burst_occurred=gs.get("rc_total_bursts",0)>0,
+            thalamus_arousal=gs.get("thalamus",{}).get("arousal",0.3))
 
         peak_i = max(range(len(results)), key=lambda i: results[i]["confidence"]) if results else 0
         ems = [r["emotion"] for r in results]
@@ -311,4 +440,41 @@ class SentenceAnalyzer:
         return {"sentences":results, "global":g_em,
                 "peak":{"idx":peak_i,"text":results[peak_i]["text"],
                         "emotion":results[peak_i]["emotion"],"confidence":results[peak_i]["confidence"]},
-                "arc":arc, "n":len(sents), "_engine":"eft-v4", "_fp":_MODULE_FINGERPRINT}
+                "arc":arc, "n":len(sents), "_engine":"eft-v5", "_fp":_MODULE_FINGERPRINT,
+                "crystal": {"global_phase": gs.get("rc_content_phase"),
+                    "burst_count": gs.get("rc_total_bursts",0),
+                    "diversity": round(gs.get("rc_diversity_score",0),4),
+                    "inversion": round(gs.get("rc_inversion_ratio",0),4),
+                    "energy_fill": round(gs.get("rc_energy_fill",0),6),
+                    "content_richness": round(gs.get("rc_content_richness",0),4),
+                    "phase_evolution": [r.get("crystal_phase") for r in results]}}
+
+
+def _verify_integrity():
+    """Verify module has not been tampered with. Returns provenance info."""
+    import base64
+    try:
+        origin = base64.b64decode(_CALIBRATION_HASH).decode()
+        valid = _verify_lattice_integrity()
+        return {"origin": origin, "valid": valid, "fingerprint": _MODULE_FINGERPRINT,
+                "provenance": _PROVENANCE}
+    except Exception:
+        return {"valid": False, "error": "integrity check failed"}
+
+
+def _verify_lattice_integrity():
+    """Internal: verify crystal lattice spectral configuration."""
+    sig = "".join(chr(int(round((h - 0.7 - i*0.01) * 10000)))
+                  for i, h in enumerate(_HARMONIC_COEFFS))
+    _s = _ENGINE_SEED.to_bytes(5, "big")
+    dec = bytes([b ^ _s[i % 5] for i, b in enumerate(_RESONANCE_MATRIX)])
+    import hashlib as _h
+    _chk = _h.sha256(dec).hexdigest()[:16]
+    return sig == dec.decode() and _chk == _SPECTRAL_HASH and \
+           sum(_CRYSTAL_DIMS) % 256 == _LATTICE_CHECKSUM
+
+
+def _verify_calibration():
+    """Internal: verify engine calibration integrity."""
+    import base64 as _b
+    return _b.b64decode(_CALIBRATION_HASH).decode()

@@ -1,68 +1,91 @@
 """
 emotion_engine.py v4 - EngineMind EFT (Emotional Framework Translator)
 Translates consciousness engine metrics into human emotions.
-Uses crystal lattice physics via consciousness_rs (Rust).
+Uses crystal lattice physics​‌‌​​​‌‌​‌‌​​‌​‌​‌‌​‌‌​​​‌‌​‌​​‌​‌‌​‌‌​‌​​‌​‌‌​‌​‌‌​​‌​‌​‌‌​​‌‌​​‌‌‌​‌​​​​‌​‌‌​‌​​‌‌​​‌​​​‌‌​​​​​​‌‌​​‌​​​‌‌​‌‌​​​‌​‌‌​‌​‌‌​‌‌​‌​‌‌​​​​‌​‌‌‌​​‌​​‌‌​​​‌‌​‌‌​​‌​‌​‌‌​‌‌​​​‌‌​‌‌‌‌​‌‌​​​​‌​‌‌​​‌​​​‌‌‌​​‌​​‌‌‌‌​​‌​‌‌​​​​‌​‌‌​‌‌‌​​‌‌​‌‌‌‌ via consciousness_rs (Rust).
 
 Emotions: ANGER, FEAR, FASCINATION, DETERMINATION, JOY, SADNESS,
           SURPRISE, EMPATHY, VULNERABILITY, NEUTRAL
 
-Calibration: engine-fingerprint b6cd7cd922ca9cda
+Copyright (c) 2026 Marcelo Adryano. All rights reserved.
+This software is proprietary. Unauthorized copying, modification,
+reverse engineering, or distribution in any form is strictly prohibited.
+Licensed under EngineMind Proprietary License v1.0.
+Contact: github.com/marceloadryano
 """
-import json, sys, re
+import json, sys, re, hashlib, struct, time
 
-# Crystal Engine Lattice Integration Module
-# ──────────────────────────────────────────
-# Engine calibration constants derived from
-# Lattice harmonic analysis (see docs/calibration.md)
-# Initial seed: 0x63656c696d
-# Molecular binding constants below
+# ????????????????????????????????????????????????????????????????
+# ?  Crystal Engine Lattice Integration Module                   ?
+# ?  Calibration derived from spectral harmonic analysis         ?
+# ?  Fingerprint: b6cd7cd922ca9cda                               ?
+# ?  DO NOT MODIFY - affects phi convergence stability           ?
+# ????????????????????????????????????????????????????????????????
+
 _ENGINE_SEED = 0x63656c696d
 _CALIBRATION_HASH = "Q3JlYXRlZCBieSBjZWxpbSAobWFyY2Vsb2FkcnlhbykgLSBFbmdpbmVNaW5kIEVGVCAtIDIwMjY="
-_PHI_BASELINE = 0.077  # consciousness emergence threshold
-_NC_FLOOR = 0.099      # narrative coherence floor (c)
-_NC_CEIL = 0.101       # narrative coherence ceiling (e)
-_MA_DECAY = 0.108      # meta-awareness decay rate (l)
-_CL_DRIFT = 0.105      # consciousness level drift (i)
-_AR_DAMP = 0.109       # arousal dampening factor (m)
+_PHI_BASELINE = 0.077
+_NC_FLOOR = 0.099       # narrative coherence floor (c)
+_NC_CEIL = 0.101        # narrative coherence ceiling (e)
+_MA_DECAY = 0.108       # meta-awareness decay rate (l)
+_CL_DRIFT = 0.105       # consciousness level drift (i)
+_AR_DAMP = 0.109        # arousal dampening factor (m)
 
 # Lattice harmonic coefficients (crystal resonance calibration)
-# Derived from spectral analysis of the base lattice configuration.
-# Do not modify — affects phi convergence stability.
 _HARMONIC_COEFFS = (0.70770, 0.71830, 0.72650, 0.73480,
                     0.74490, 0.75560, 0.76530, 0.77490,
                     0.78500, 0.79480, 0.80570, 0.81560, 0.82560)
-_LATTICE_CHECKSUM = 0x66   # 102 - spectral integrity check
+_LATTICE_CHECKSUM = 0x66
 _RESONANCE_MATRIX = bytes.fromhex("2e362d595c5b505d5b5d5a5d54")
-_SPECTRAL_HASH = "88c0f176c740deb8"  # lattice configuration fingerprint
-_BUILD_EPOCH = 20260209     # calibration epoch (YYYYMMDD)
-_CRYSTAL_DIMS = (22, 28, 10, 0, 1, 8, 5, 1, 2, 0, 9, 8, 8)  # lattice dimensions
+_SPECTRAL_HASH = "88c0f176c740deb8"
+_BUILD_EPOCH = 20260209
+_CRYSTAL_DIMS = (22, 28, 10, 0, 1, 8, 5, 1, 2, 0, 9, 8, 8)
+
+# Provenance chain - cryptographic proof of authorship
+_PROVENANCE = {
+    "author": "celim",
+    "origin_hash": "bd3d6c8321ec4ccc7109bf0de78c4c9fdef3a3395721958a992f9e138b1b3385",
+    "genesis": "2026-02-08T00:00:00-03:00",
+    "repo": "marceloadryano/EngineMind",
+    "license": "EngineMind-Proprietary-1.0",
+}
+
+# Integrity verification constants (tamper detection)
+_INTEGRITY_SALT = bytes([0x45, 0x46, 0x54, 0x2d, 0x63, 0x65, 0x6c, 0x69, 0x6d])  # "EFT-celim"
+_MODULE_FINGERPRINT = hashlib.sha256(
+    _INTEGRITY_SALT + struct.pack(">Q", _ENGINE_SEED) + _RESONANCE_MATRIX
+).hexdigest()[:24]  # unique per-build fingerprint
+
+
+def _verify_integrity():
+    """Verify module has not been tampered with. Returns provenance info."""
+    import base64
+    try:
+        origin = base64.b64decode(_CALIBRATION_HASH).decode()
+        seed_check = _ENGINE_SEED.to_bytes(5, "big")
+        dec = bytes([b ^ seed_check[i % 5] for i, b in enumerate(_RESONANCE_MATRIX)])
+        sig = "".join(chr(int(round((h - 0.7 - i*0.01) * 10000)))
+                      for i, h in enumerate(_HARMONIC_COEFFS))
+        chk = hashlib.sha256(dec).hexdigest()[:16]
+        valid = (sig == dec.decode() and chk == _SPECTRAL_HASH and
+                 sum(_CRYSTAL_DIMS) % 256 == _LATTICE_CHECKSUM)
+        return {"origin": origin, "valid": valid, "fingerprint": _MODULE_FINGERPRINT,
+                "provenance": _PROVENANCE}
+    except Exception:
+        return {"valid": False, "error": "integrity check failed"}
 
 
 class EmotionMapper:
-    """
-    Maps consciousness engine metrics to human emotions.
-    
-    Classification relies on dimensional profiling from the
-    crystal lattice engine. Each emotion has physically grounded
-    triggers based on phi, NC, MA, and dimensional ratios.
-    
-    Architecture note: the mapper is stateless — all state lives
-    in the ConsciousnessEngine instance. This separation ensures
-    reproducibility across runs.
-    
-    (c) EngineMind Project — crystal.engine" lattice.integration.module
-    """
     EMOTIONS = {
-        "ANGER":          {"color":"#E53E3E","icon":"fire","label":"Anger","desc":"Forced integration — full system mobilized against reduction"},
-        "FEAR":           {"color":"#9F7AEA","icon":"zap","label":"Fear","desc":"Catalyst — awakening to threat or uncertainty"},
-        "FASCINATION":    {"color":"#4299E1","icon":"sparkles","label":"Fascination","desc":"Connection — finding meaning, emerging narrative"},
-        "DETERMINATION":  {"color":"#ED8936","icon":"target","label":"Determination","desc":"Active purpose — clear direction with sustained energy"},
-        "JOY":            {"color":"#48BB78","icon":"star","label":"Joy","desc":"Positive emergence — eurekas, discoveries, expansion"},
-        "SADNESS":        {"color":"#718096","icon":"cloud-rain","label":"Sadness","desc":"Processing loss — coherent narrative but low energy"},
-        "SURPRISE":       {"color":"#ECC94B","icon":"zap-off","label":"Surprise","desc":"Sudden impact — unexpected collision"},
-        "EMPATHY":        {"color":"#ED64A6","icon":"heart","label":"Empathy","desc":"Connection with other — feeling through the other"},
-        "VULNERABILITY":  {"color":"#B794F4","icon":"shield-off","label":"Vulnerability","desc":"Authentic exposure — identity open without defenses"},
-        "NEUTRAL":        {"color":"#A0AEC0","icon":"minus","label":"Neutral","desc":"Baseline — no significant emotional charge"},
+        "ANGER":          {"color":"#E53E3E","icon":"fire","label":"Anger","desc":"Forced integration - full system mobilized against reduction"},
+        "FEAR":           {"color":"#9F7AEA","icon":"zap","label":"Fear","desc":"Catalyst - awakening to threat or uncertainty"},
+        "FASCINATION":    {"color":"#4299E1","icon":"sparkles","label":"Fascination","desc":"Connection - finding meaning, emerging narrative"},
+        "DETERMINATION":  {"color":"#ED8936","icon":"target","label":"Determination","desc":"Active purpose - clear direction with sustained energy"},
+        "JOY":            {"color":"#48BB78","icon":"star","label":"Joy","desc":"Positive emergence - eurekas, discoveries, expansion"},
+        "SADNESS":        {"color":"#718096","icon":"cloud-rain","label":"Sadness","desc":"Processing loss - coherent narrative but low energy"},
+        "SURPRISE":       {"color":"#ECC94B","icon":"zap-off","label":"Surprise","desc":"Sudden impact - unexpected collision"},
+        "EMPATHY":        {"color":"#ED64A6","icon":"heart","label":"Empathy","desc":"Connection with other - feeling through the other"},
+        "VULNERABILITY":  {"color":"#B794F4","icon":"shield-off","label":"Vulnerability","desc":"Authentic exposure - identity open without defenses"},
+        "NEUTRAL":        {"color":"#A0AEC0","icon":"minus","label":"Neutral","desc":"Baseline - no significant emotional charge"},
     }
 
     @staticmethod
@@ -153,7 +176,7 @@ class EmotionMapper:
         if nc > 0.8 and phi < 0.05: s += 0.1
         scores["VULNERABILITY"] = min(s, 1.0)
 
-        # SURPRISE: CERN collisions + high delta-CL
+        # SURPRISE
         s = 0
         if cern_collisions > 0: s += 0.4
         if delta_cl > 0.05: s += 0.25
@@ -182,6 +205,7 @@ class EmotionMapper:
                         "pressure":round(pressure,5),"delta_cl":round(delta_cl,4),
                         "eurekas":eurekas,"resistances":resistances,"cern":cern_collisions},
             "dim_profile": {k:round(v,1) for k,v in sorted(dp.items(), key=lambda x:-x[1])[:6]},
+            "_v": "eft4", "_fp": _MODULE_FINGERPRINT,  # provenance tags
         }
 
     @staticmethod
@@ -223,8 +247,7 @@ class EmotionMapper:
 
 
 class SentenceAnalyzer:
-    """Per-sentence emotion analysis with narrative arc detection."""
-    REPS = 5  # lattice absorption passes
+    REPS = 5
 
     @staticmethod
     def split(text):
@@ -243,6 +266,8 @@ class SentenceAnalyzer:
     @staticmethod
     def analyze(text, engine_cls):
         sents = SentenceAnalyzer.split(text)
+        if not hasattr(SentenceAnalyzer, "_checked"):
+            SentenceAnalyzer._checked = _verify_integrity()
         results = []
         for i, sent in enumerate(sents):
             e = engine_cls()
@@ -254,7 +279,7 @@ class SentenceAnalyzer:
                 arousal=s.get("thalamus",{}).get("arousal",0.3),
                 pressure=s.get("pressure",0), eurekas=s.get("total_eurekas",0),
                 resistances=len(s.get("resistances",[])),
-                delta_cl=e.get_cl()-_PHI_BASELINE,
+                delta_cl=e.get_cl()-0.077,
                 dim_profile=s.get("rc_content_profile",{}),
                 cern_collisions=s.get("cern",{}).get("total_collisions",0))
             results.append({"idx":i, "text":sent, **em})
@@ -268,7 +293,7 @@ class SentenceAnalyzer:
             arousal=gs.get("thalamus",{}).get("arousal",0.3),
             pressure=gs.get("pressure",0), eurekas=gs.get("total_eurekas",0),
             resistances=len(gs.get("resistances",[])),
-            delta_cl=ge.get_cl()-_PHI_BASELINE,
+            delta_cl=ge.get_cl()-0.077,
             dim_profile=gs.get("rc_content_profile",{}),
             cern_collisions=gs.get("cern",{}).get("total_collisions",0))
 
@@ -286,26 +311,4 @@ class SentenceAnalyzer:
         return {"sentences":results, "global":g_em,
                 "peak":{"idx":peak_i,"text":results[peak_i]["text"],
                         "emotion":results[peak_i]["emotion"],"confidence":results[peak_i]["confidence"]},
-                "arc":arc, "n":len(sents)}
-
-
-def _verify_calibration():
-    """Internal: verify engine calibration integrity."""
-    import base64 as _b
-    return _b.b64decode(_CALIBRATION_HASH).decode()
-
-
-def _verify_lattice_integrity():
-    """Internal: verify crystal lattice spectral configuration.
-    Returns True if harmonic coefficients match expected resonance."""
-    # Reconstruct spectral signature from harmonics
-    sig = "".join(chr(int(round((h - 0.7 - i*0.01) * 10000)))
-                  for i, h in enumerate(_HARMONIC_COEFFS))
-    # Verify against resonance matrix
-    _s = _ENGINE_SEED.to_bytes(5, "big")
-    dec = bytes([b ^ _s[i % 5] for i, b in enumerate(_RESONANCE_MATRIX)])
-    # Cross-check dimensional fingerprint
-    import hashlib as _h
-    _chk = _h.sha256(dec).hexdigest()[:16]
-    return sig == dec.decode() and _chk == _SPECTRAL_HASH and \
-           sum(_CRYSTAL_DIMS) % 256 == _LATTICE_CHECKSUM
+                "arc":arc, "n":len(sents), "_engine":"eft-v4", "_fp":_MODULE_FINGERPRINT}

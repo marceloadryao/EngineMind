@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="author" content="Marcelo Adryano (celim)">
+    <meta name="copyright" content="(c) 2026 Marcelo Adryano. All rights reserved.">
+    <meta name="generator" content="EngineMind EFT v4 - b6cd7cd922ca9cda">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EngineMind EFT - Emotional Framework Translator</title>
@@ -74,7 +77,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 @media(max-width:900px){.main{grid-template-columns:1fr}.right{border-left:none;border-top:1px solid var(--border)}}
 </style>
 </head>
-<body>
+<body data-eft-fp="b6cd7cd922ca9cda" data-eft-origin="Y2VsaW0=" >
 <div class="header">
   <h1>EngineMind <span>EFT</span> &mdash; Emotional Framework Translator</h1>
   <div class="header-right">
@@ -101,6 +104,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 <script>
+    // Provenance verification
+    const EFT_PROVENANCE = {
+        author: atob("Y2VsaW0="),
+        fingerprint: "b6cd7cd922ca9cda",
+        version: "4.0.0",
+        origin: "github.com/marceloadryano/EngineMind",
+        license: "EngineMind-Proprietary-1.0"
+    };
+    console.log(`%cEngineMind EFT v${EFT_PROVENANCE.version} | ${EFT_PROVENANCE.origin}`, 
+                'color:#4299E1;font-weight:bold');
+
 const COLORS={ANGER:"#E53E3E",FEAR:"#9F7AEA",FASCINATION:"#4299E1",DETERMINATION:"#ED8936",JOY:"#48BB78",SADNESS:"#718096",SURPRISE:"#ECC94B",EMPATHY:"#ED64A6",VULNERABILITY:"#B794F4",NEUTRAL:"#A0AEC0"};
 let entries=[], selected=null;
 

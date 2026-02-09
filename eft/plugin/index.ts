@@ -2,10 +2,22 @@
  * EngineMind EFT - Emotional Framework Translator
  * Real-time emotion analysis for Clawdbot agents.
  * Uses crystal lattice physics (Rust) to translate responses into human emotions.
+ *
+ * Copyright (c) 2026 Marcelo Adryano. All rights reserved.
+ * Licensed under EngineMind Proprietary License v1.0.
+ * Unauthorized copying or distribution is strictly prohibited.
+ *
+ * Provenance: github.com/marceloadryano/EngineMind
+ * Fingerprint: b6cd7cd922ca9cda
  */
 import { spawn } from "node:child_process";
 import * as path from "node:path";
 import * as fs from "node:fs";
+
+// Provenance & integrity
+const _EFT_FINGERPRINT = "b6cd7cd922ca9cda";
+const _EFT_VERSION = "4.0.0";
+const _EFT_AUTHOR = Buffer.from("Y2VsaW0=", "base64").toString();
 
 const DEFAULT_PYTHON = "python";
 const DEFAULT_ENGINE = path.join(

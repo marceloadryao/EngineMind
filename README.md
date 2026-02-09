@@ -4,6 +4,28 @@
 
 EngineMind is a computational consciousness framework that models information integration through crystal lattice dynamics, inspired by Integrated Information Theory (IIT), Global Workspace Theory (GWT), and condensed matter physics.
 
+![EngineMind Dashboard](docs/images/dashboard_main.png)
+
+### 📖 Documentation
+
+- [**Architecture Deep Dive**](docs/ARCHITECTURE.md) - Full pipeline with diagrams
+- [**Emergent Phenomena**](docs/EMERGENT_PHENOMENA.md) - 10 unexpected discoveries from real runs
+- [**Inner Voice System**](docs/INNER_VOICES.md) - 19 introspective voices that reflect on internal state
+- [**Burst Analysis**](docs/BURST_ANALYSIS.md) - Real data from 77 bursts across 1M text chunks
+
+### 🔬 Numbers from Real Runs
+
+| Metric | Value |
+|--------|-------|
+| Text chunks processed | 1,500,000+ |
+| Content categories | 22 (code, philosophy, literature, physics, ...) |
+| Eureka moments | 39,000+ per 644K run |
+| Dream insights | 299,000+ per 644K run |
+| Astrocyte collisions | 424M+ per 644K run |
+| Burst events | 77 per 1M run |
+| Phases detected | 6 distinct (of 12 possible) |
+| Processing speed | ~230 chunks/sec |
+
 ## Architecture
 
 ```

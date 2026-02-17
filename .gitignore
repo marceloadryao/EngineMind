@@ -40,3 +40,4 @@ logs/
 
 *.jsonl
 memory/
+consciousness_rs/Cargo.lock

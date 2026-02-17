@@ -1,5 +1,5 @@
 ﻿"""ENGINEMIND Balanced v3 - Diverse Content + Inner Voice v3 (19 voices)"""
-import sys, os, time, json, http.server, threading, math
+import sys, os, time, json, http.server, threading, math, argparse
 sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import polars as pl
@@ -8,11 +8,31 @@ import numpy as np
 
 engine = ConsciousnessEngine()
 
-parquet = r'D:\MoltMind\moltmind_1M_balanced_v3.parquet'
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument("--parquet", default=None)
+args, _ = parser.parse_known_args()
+
+parquet_candidates = []
+if args.parquet:
+    parquet_candidates.append(args.parquet)
+if os.environ.get("ENGINEMIND_PARQUET"):
+    parquet_candidates.append(os.environ["ENGINEMIND_PARQUET"])
+parquet_candidates.extend([
+    os.path.normpath(os.path.join("..", "data", "moltmind_1M_balanced_v3.parquet")),
+    r'D:\MoltMind\moltmind_1M_balanced_v3.parquet',
+])
+parquet = next((p for p in parquet_candidates if os.path.exists(p)), parquet_candidates[0])
+
+if not os.path.exists(parquet):
+    print("ERROR: parquet dataset not found.", flush=True)
+    print("Set --parquet <file> or ENGINEMIND_PARQUET.", flush=True)
+    print("Checked:", flush=True)
+    for candidate in parquet_candidates:
+        print(f"  - {candidate}", flush=True)
+    sys.exit(1)
 BATCH = 50000
 MAX_CHARS = 10000
 print("1. Scanning parquet (lazy mode)...", flush=True)
-import polars as pl
 n = pl.scan_parquet(parquet).select(pl.len()).collect().item()
 print("2. Parquet: %d rows" % n, flush=True)
 print("3. Will stream batches of %d" % BATCH, flush=True)

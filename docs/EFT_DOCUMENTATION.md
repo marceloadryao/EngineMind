@@ -440,6 +440,7 @@ maturin develop --release
 ```bash
 cp -r eft/plugin/ ~/.clawdbot/extensions/crystalsense/
 cp eft/emotion_engine.py /your/workspace/
+cp eft/eft_dashboard.html /your/workspace/
 ```
 
 ### Step 3: Configure
@@ -452,13 +453,24 @@ Add to `~/.clawdbot/clawdbot.json`:
         "enabled": true,
         "config": {
           "pythonPath": "python",
-          "enginePath": "/absolute/path/to/emotion_engine.py"
+          "enginePath": "/absolute/path/to/emotion_engine.py",
+          "dashboardPath": "/absolute/path/to/eft_dashboard.html"
         }
       }
     }
   }
 }
 ```
+
+If `enginePath` / `dashboardPath` are omitted, plugin auto-resolves:
+- `./eft/emotion_engine.py`
+- `./emotion_engine.py`
+- `~/Desktop/EngineMind/eft/emotion_engine.py`
+
+Environment overrides:
+- `ENGINEMIND_EFT_ENGINE`
+- `ENGINEMIND_EFT_DASHBOARD`
+- `ENGINEMIND_EFT_LOG`
 
 ### Step 4: Restart
 ```bash

@@ -305,11 +305,12 @@ maturin develop --release
 
 ```bash
 cd scripts
-python enginemind_balanced_v3.py
+python enginemind_balanced_v3.py --parquet /path/to/moltmind_1M_balanced_v3.parquet
 # Dashboard: http://localhost:8888/
 ```
 
 The runner streams 1M+ text chunks through the engine, logging burst events and progress to `memory/`. The SSE dashboard updates in real time.
+You can also set dataset path via `ENGINEMIND_PARQUET`.
 
 ### Use EFT Standalone
 
@@ -330,12 +331,21 @@ print(result["arc"])                   # "TRIPARTITE_CYCLE"
 # Build engine first (see above)
 cp -r eft/plugin/ ~/.clawdbot/extensions/crystalsense/
 cp eft/emotion_engine.py /your/workspace/
+cp eft/eft_dashboard.html /your/workspace/
 
 # Configure (clawdbot.json)
 { "plugins": { "entries": { "crystalsense": {
   "enabled": true,
-  "config": { "pythonPath": "python", "enginePath": "/path/to/emotion_engine.py" }
+  "config": {
+    "pythonPath": "python",
+    "enginePath": "/path/to/emotion_engine.py",
+    "dashboardPath": "/path/to/eft_dashboard.html"
+  }
 }}}}
+
+# Optional: if enginePath/dashboardPath are omitted, plugin auto-resolves:
+#   ./eft/emotion_engine.py, ./emotion_engine.py, ~/Desktop/EngineMind/eft/emotion_engine.py
+# Env overrides: ENGINEMIND_EFT_ENGINE, ENGINEMIND_EFT_DASHBOARD, ENGINEMIND_EFT_LOG
 
 clawdbot gateway restart
 # Dashboard → http://localhost:<port>/eft

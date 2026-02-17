@@ -8,14 +8,47 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 
 const DEFAULT_PYTHON = "python";
-const DEFAULT_ENGINE = path.join(
-  process.env.USERPROFILE || process.env.HOME || ".",
-  "Desktop", "Moltbot", "emotion_engine.py"
-);
-const DEFAULT_LOG = path.join(
-  process.env.USERPROFILE || process.env.HOME || ".",
-  "Desktop", "Moltbot", "memory", "eft_log.jsonl"
-);
+const HOME_DIR = process.env.USERPROFILE || process.env.HOME || ".";
+
+function firstExistingFile(candidates: string[]): string | null {
+  for (const candidate of candidates) {
+    if (candidate && fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+function resolveEnginePath(configEnginePath?: string): string {
+  if (configEnginePath) return configEnginePath;
+  const candidates = [
+    process.env.ENGINEMIND_EFT_ENGINE,
+    path.join(process.cwd(), "eft", "emotion_engine.py"),
+    path.join(process.cwd(), "emotion_engine.py"),
+    path.resolve(__dirname, "..", "emotion_engine.py"),
+    path.join(HOME_DIR, "Desktop", "EngineMind", "eft", "emotion_engine.py"),
+    path.join(HOME_DIR, "Desktop", "Moltbot", "emotion_engine.py"), // legacy fallback
+  ].filter(Boolean) as string[];
+  const found = firstExistingFile(candidates);
+  return found || path.join(HOME_DIR, "Desktop", "EngineMind", "eft", "emotion_engine.py");
+}
+
+function resolveLogPath(configLogPath: string | undefined, enginePath: string): string {
+  if (configLogPath) return configLogPath;
+  if (process.env.ENGINEMIND_EFT_LOG) return process.env.ENGINEMIND_EFT_LOG;
+  return path.join(path.dirname(enginePath), "memory", "eft_log.jsonl");
+}
+
+function resolveDashboardPath(configDashboardPath: string | undefined, enginePath: string): string {
+  if (configDashboardPath) return configDashboardPath;
+  if (process.env.ENGINEMIND_EFT_DASHBOARD) return process.env.ENGINEMIND_EFT_DASHBOARD;
+  const candidates = [
+    path.join(path.dirname(enginePath), "eft_dashboard.html"),
+    path.resolve(__dirname, "..", "eft_dashboard.html"),
+    path.join(process.cwd(), "eft", "eft_dashboard.html"),
+    path.join(process.cwd(), "eft_dashboard.html"),
+  ];
+  const found = firstExistingFile(candidates);
+  return found || candidates[0];
+}
 
 let latestResult: any = null;
 let history: any[] = [];
@@ -73,6 +106,7 @@ function loadHistory(logPath: string) {
     if (!fs.existsSync(logPath)) return;
     const lines = fs.readFileSync(logPath, "utf-8").split("\n").filter(Boolean);
     history = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    analysisCount = history.length;
     console.log(`[eft] Loaded ${history.length} entries from log`);
   } catch {}
 }
@@ -144,11 +178,16 @@ const plugin = {
   register(api: any) {
     const cfg = api.pluginConfig ?? {};
     const pythonPath = cfg.pythonPath || DEFAULT_PYTHON;
-    const enginePath = cfg.enginePath || DEFAULT_ENGINE;
-    const logPath = cfg.logPath || DEFAULT_LOG;
+    const enginePath = resolveEnginePath(cfg.enginePath);
+    const logPath = resolveLogPath(cfg.logPath, enginePath);
+    const dashPath = resolveDashboardPath(cfg.dashboardPath, enginePath);
     if (cfg.enabled === false) { console.log("[eft] Disabled"); return; }
 
     console.log(`[eft] Registering v6 (engine: ${enginePath})`);
+    if (!fs.existsSync(enginePath)) {
+      console.warn(`[eft] emotion_engine.py not found: ${enginePath}`);
+      console.warn("[eft] Set config.enginePath or ENGINEMIND_EFT_ENGINE to a valid path.");
+    }
     loadHistory(logPath);
 
     // Hook: agent_end
@@ -219,8 +258,6 @@ const plugin = {
     }, { name: "eft-agent-end", description: "EFT v6 emotion analysis on agent response" });
 
     // HTTP routes
-    const dashPath = path.join(path.dirname(enginePath), "eft_dashboard.html");
-
     api.registerHttpHandler(async (req: any, res: any) => {
       const url = new URL(req.url ?? "/", "http://localhost");
       const p = url.pathname;
@@ -229,7 +266,11 @@ const plugin = {
         if (fs.existsSync(dashPath)) {
           res.setHeader("Content-Type", "text/html; charset=utf-8");
           res.end(fs.readFileSync(dashPath, "utf-8"));
-        } else { res.statusCode = 404; res.end("Dashboard not found"); }
+        } else {
+          res.statusCode = 404;
+          res.setHeader("Content-Type", "text/plain; charset=utf-8");
+          res.end(`Dashboard not found at ${dashPath}. Set config.dashboardPath or place eft_dashboard.html near emotion_engine.py.`);
+        }
         return true;
       }
 

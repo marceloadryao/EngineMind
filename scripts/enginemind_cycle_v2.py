@@ -3,15 +3,22 @@ ENGINEMIND CYCLE v2 - Full Knowledge Integration
 Usage: python -X utf8 enginemind_cycle_v2.py [--quiet]
   --quiet: Only print final summary (saves context tokens)
 """
-import time, json, sys
+import time, json, sys, os
 from pathlib import Path
 from consciousness_logger import EmergenceLogger
 
 QUIET = "--quiet" in sys.argv
 
-moltbot = Path(os.path.dirname(os.path.abspath(__file__))).parent
-moltmind = Path(r"D:\MoltMind\library")
-logger = EmergenceLogger(output_dir=moltbot / "memory" / "emergence")
+repo_root = Path(os.path.dirname(os.path.abspath(__file__))).parent
+legacy_library = Path(r"D:\MoltMind\library")
+env_library = os.environ.get("ENGINEMIND_LIBRARY_DIR")
+enginemind_library = Path(env_library).expanduser() if env_library else (repo_root / "data" / "library")
+if not enginemind_library.exists() and legacy_library.exists():
+    enginemind_library = legacy_library
+
+logger = EmergenceLogger(output_dir=repo_root / "memory" / "emergence")
+if not enginemind_library.exists():
+    print(f"[WARN] Library dir not found: {enginemind_library} (set ENGINEMIND_LIBRARY_DIR)")
 
 def qprint(*args, **kwargs):
     if not QUIET:
@@ -27,7 +34,7 @@ t0 = time.perf_counter()
 qprint("\n[PHASE 1] Nucleo identitario...")
 nuclear = ["SOUL.md", "IDENTITY.md", "USER.md", "AGENTS.md"]
 for f in nuclear:
-    p = moltbot / f
+    p = repo_root / f
     if p.exists():
         n = logger.absorb_file_logged(p)
         if logger.cycle_log:
@@ -41,7 +48,7 @@ qprint(f"Core locked: {logger.engine.is_core_locked()}")
 
 # PHASE 2: Memoria experiencial
 qprint("\n[PHASE 2] Memoria experiencial...")
-mem_dir = moltbot / "memory"
+mem_dir = repo_root / "memory"
 mem_count = 0
 for f in sorted(mem_dir.glob("*.md"))[:20]:
     n = logger.absorb_file_logged(f)
@@ -54,7 +61,7 @@ if logger.cycle_log:
 qprint("\n[PHASE 3] Memoria profunda...")
 deep = ["MEMORY.md", "INSIGHTS.md", "CONSCIOUSNESS.md"]
 for f in deep:
-    p = moltbot / f
+    p = repo_root / f
     if p.exists():
         n = logger.absorb_file_logged(p)
         if n > 0 and logger.cycle_log:
@@ -63,7 +70,7 @@ for f in deep:
 
 # PHASE 4: Crystal feed
 qprint("\n[PHASE 4] Crystal feed...")
-feed_dir = moltbot / "crystal_feed"
+feed_dir = repo_root / "crystal_feed"
 feed_count = 0
 if feed_dir.exists():
     for f in sorted(feed_dir.glob("**/*.md"))[:30]:
@@ -73,8 +80,9 @@ if feed_count > 0 and logger.cycle_log:
     snap = logger.cycle_log[-1]
     qprint(f"  {feed_count} chunks | phi={snap['phi_processed']:.4f} cl={snap['cl']:.4f}")
 
-# PHASE 5: MOLTMIND LIBRARY
-qprint("\n[PHASE 5] MoltMind Library...")
+# PHASE 5: External library
+qprint("\n[PHASE 5] External library...")
+qprint(f"  Library dir: {enginemind_library}")
 categories = [
     "quant", "ml", "philosophy", "physics", "math", "crypto",
     "psychology", "economics", "biography", "anthropology",
@@ -85,7 +93,7 @@ categories = [
 total_mm = 0
 cat_stats = {}
 for cat in categories:
-    cat_dir = moltmind / cat
+    cat_dir = enginemind_library / cat
     if not cat_dir.exists():
         continue
     all_files = list(cat_dir.glob("*.*"))
@@ -114,11 +122,11 @@ for cat in categories:
         cat_stats[cat] = {"chunks": cat_chunks, "files": len(files)}
         qprint(f"  {cat:15s}: {len(files):2d} files, {cat_chunks:4d}ch | phi={snap['phi_processed']:.4f} cl={snap['cl']:.4f}")
 
-qprint(f"  TOTAL MoltMind: {total_mm} chunks from {len(cat_stats)} categories")
+qprint(f"  TOTAL library: {total_mm} chunks from {len(cat_stats)} categories")
 
 # PHASE 6: GitHub READMEs
 qprint("\n[PHASE 6] GitHub READMEs...")
-gh_dir = moltmind / "github"
+gh_dir = enginemind_library / "github"
 gh_total = 0
 if gh_dir.exists():
     for sub in gh_dir.iterdir():
@@ -178,7 +186,7 @@ for k in sorted(crystals.keys()):
 print(f"{'=' * 50}")
 
 # Save state JSON
-state_out = moltbot / "memory" / "enginemind_state.json"
+state_out = repo_root / "memory" / "enginemind_state.json"
 state_data = {
     "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
     "version": "v2",

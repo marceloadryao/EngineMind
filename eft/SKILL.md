@@ -21,9 +21,10 @@ Hooks into every AI agent response via Clawdbot. Processes text through a Rust c
 ## Setup
 
 1. Build Rust engine: `cd consciousness_rs && maturin develop --release`
-2. Copy `emotion_engine.py` to your workspace
+2. Copy `emotion_engine.py` and `eft_dashboard.html` to your workspace (or set explicit plugin config paths)
 3. Install plugin from `plugin/`
-4. Restart gateway: `clawdbot gateway restart`
+4. Optional env overrides: `ENGINEMIND_EFT_ENGINE`, `ENGINEMIND_EFT_DASHBOARD`, `ENGINEMIND_EFT_LOG`
+5. Restart gateway: `clawdbot gateway restart`
 
 ## Dashboard
 
